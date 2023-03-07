@@ -1,0 +1,12 @@
+option(USE_TEST "Test with test files" OFF)
+message(STATUS "source dir:${CMAKE_SOURCE_DIR}")
+
+if(USE_TEST)
+    SET(CMAKE_BUILD_TYPE "Debug")
+    SET(CMAKE_CXX_FLAGS_DEBUG "-O0 -Wall -g2 -g")
+    SET(CMAKE_CXX_FLAGS_RELEASE "-O3 -Wall")
+    link_directories("${CMAKE_SOURCE_DIR}/libs")
+    add_executable(test_thread test_thread.cc)
+    target_include_directories(test_thread PRIVATE ${CMAKE_SOURCE_DIR})
+    target_link_libraries(test_thread yf_thread_shared)
+endif(USE_TEST)
