@@ -1,5 +1,8 @@
 # 个人linux线程封装库
 ```
+语言标准: c++14
+cmake版本: 3.5或以上皆可
+
 1. 在CMakeLists.txt同级文件下创建build、libs、bin目录
 2. cd build
 3. cmake .. （如果想生成测试文件请使用cmake -DUSE_TEST ..)
