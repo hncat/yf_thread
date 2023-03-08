@@ -25,7 +25,7 @@ pthread_t thread::getPthreadId() { return _ptid; }
 
 uint32_t thread::getThreadId() {
     if (_tid == 0) {
-        _tid = ::syscall(SYS_gettid);
+        _tid = syscall(SYS_gettid);
     }
     return _tid;
 }
