@@ -3,47 +3,47 @@
 
 #include <assert.h>
 #include <pthread.h>
-#include <sys/syscall.h>
-#include <unistd.h>
+#include <stdint.h>
 
-#include <memory>
 #include <tuple>
 #include <type_traits>
 
 namespace yf {
 
 template <typename... Args, std::size_t... I>
-void threadCallback(std::shared_ptr<std::tuple<Args...>> &pack,
+void threadCallback(std::tuple<Args...> *pack,
                     std::index_sequence<I...>) {
     std::get<0> (*pack)(std::get<I + 1>(*pack)...);
 }
 
 template <typename Obj, typename... Args, std::size_t... I,
           typename = std::enable_if_t<std::is_class<Obj>::value>>
-void threadCallback(Obj *obj, std::shared_ptr<std::tuple<Args...>> &pack,
+void threadCallback(Obj *obj, std::tuple<Args...> *pack,
                     std::index_sequence<I...>) {
-    (obj->*std::get<0>(*pack))(std::get<I + 1>(*pack)...);
+    (obj->*std::get<1>(*pack))(std::get<I + 2>(*pack)...);
 }
 
 class thread {
    public:
     thread(const thread &) = delete;
     thread &operator=(const thread &) = delete;
+    thread(thread &&) = delete;
+    thread &operator=(thread &&) = delete;
     template <typename Func, typename... Args>
     thread(Func &&func, Args &&...args) : _ptid(0), _joinable(false) {
         using pack_type = std::tuple<Func, Args...>;
-        static std::shared_ptr<pack_type> taskPack;
-        taskPack.reset(new pack_type{std::forward<Func>(func), std::forward<Args>(args)...});
+        auto taskPack{new pack_type{
+            std::forward<Func>(func), std::forward<Args>(args)...}};
         struct ThreadFunc {
-            static void *_run(void *) {
-                auto _taskPack = std::move(taskPack);
+            static void *_run(void *arg) {
+                auto _taskPack = static_cast<pack_type *>(arg);
                 threadCallback(_taskPack,
                                std::make_index_sequence<sizeof...(Args)>());
-                _taskPack.reset();
+                delete _taskPack;
                 return nullptr;
             }
         };
-        int ret = pthread_create(&_ptid, nullptr, ThreadFunc::_run, nullptr);
+        int ret = pthread_create(&_ptid, nullptr, ThreadFunc::_run, taskPack);
         assert(ret == 0);
         _joinable = true;
     }
@@ -52,29 +52,27 @@ class thread {
                   std::is_member_function_pointer<std::decay_t<Func>>::value &&
                   std::is_class<Obj>::value>>
     thread(Func &&func, Obj *obj, Args &&...args) {
-        using pack_type = std::tuple<Func, Args...>;
-        static std::shared_ptr<pack_type> taskPack;
-        taskPack.reset(new pack_type{std::forward<Func>(func), std::forward<Args>(args)...});
-        static auto *objTmp = obj;
+        using pack_type = std::tuple<Obj *, Func, Args...>;
+        auto taskPack{new pack_type{
+            obj, std::forward<Func>(func), std::forward<Args>(args)...}};
         struct ThreadFunc {
-            static void *_run(void *) {
-                auto _taskPack = std::move(taskPack);
-                threadCallback(objTmp, _taskPack,
+            static void *_run(void *arg) {
+                auto _taskPack = static_cast<pack_type *>(arg);
+                threadCallback(std::get<0>(*_taskPack), _taskPack,
                                std::make_index_sequence<sizeof...(Args)>());
-                _taskPack.reset();
+                delete _taskPack;
                 return nullptr;
             }
         };
-        int ret = pthread_create(&_ptid, nullptr, ThreadFunc::_run, nullptr);
+        int ret = pthread_create(&_ptid, nullptr, ThreadFunc::_run, taskPack);
         assert(ret == 0);
         _joinable = true;
     }
-    ~thread() = default;
     void join();
     void detach();
     bool joinable() const;
     pthread_t getPthreadId();
-    static uint64_t getThreadId();
+    static uint32_t getThreadId();
 
    private:
     pthread_t _ptid;

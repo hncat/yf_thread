@@ -3,14 +3,16 @@
 #include <unistd.h>
 
 void func(int a) {
-    std::cout << "a is a: " << a << " func thread\n";
-    // sleep(1);
+    std::cout << "threadId: " << yf::thread::getThreadId() << " a: " << a << '\n';
+    while (true) {
+    }
 }
 
 void test01() {
     yf::thread t1{func, 1};
-    // std::cout << "pthread id:" << t1.getPthreadId() << '\n';
+    yf::thread t2{func, 2};
     t1.join();
+    t2.join();
 }
 
 struct A {
@@ -32,17 +34,16 @@ void test02() {
 }
 
 void test03() {
-    yf::thread t1([](int a){ std::cout << "a:" << a << " lambda thread\n"; }, 1);
+    yf::thread t1([](int a){ std::cout << "a: " << a << " lambda thread\n"; }, 1);
     t1.join();
 }
 
 int main() {
-    int i = 10;
-    while (i > 0) {
+    std::cout << "main threadId: " << yf::thread::getThreadId() << '\n';
+    // while (true) {
         test01();
-        test02();
-        test03();
-        --i;
-    }
+        // test02();
+        // test03();
+    // }
     return 0;
 }
