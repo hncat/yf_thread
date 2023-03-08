@@ -1,11 +1,19 @@
+#include "yf_mutex.h"
 #include "yf_thread.h"
+#include "yf_lock.h"
 #include <iostream>
 #include <unistd.h>
 
+yf::mutex g_mutex;
+
 void func(int a) {
-    std::cout << "threadId: " << yf::thread::getThreadId() << " a: " << a << '\n';
-    while (true) {
-    }
+    // while (true) {
+        sleep(1);
+        yf::lock_gurd<yf::mutex> lock{g_mutex};
+        std::cout << "threadId: " << yf::thread::getThreadId() << " a: " << a << "begin\n";
+        sleep(2);
+        std::cout << "threadId: " << yf::thread::getThreadId() << " a: " << a << "end\n";
+    //}
 }
 
 void test01() {
@@ -26,8 +34,6 @@ public:
 };
 
 void test02() {
-    // yf::thread t1(A::func, 1);
-    // t1.join();
     A a;
     yf::thread t2(&A::funcA, &a, 1);
     t2.join();

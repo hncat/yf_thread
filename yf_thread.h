@@ -11,8 +11,7 @@
 namespace yf {
 
 template <typename... Args, std::size_t... I>
-void threadCallback(std::tuple<Args...> *pack,
-                    std::index_sequence<I...>) {
+void threadCallback(std::tuple<Args...> *pack, std::index_sequence<I...>) {
     std::get<0> (*pack)(std::get<I + 1>(*pack)...);
 }
 
@@ -32,8 +31,8 @@ class thread {
     template <typename Func, typename... Args>
     thread(Func &&func, Args &&...args) : _ptid(0), _joinable(false) {
         using pack_type = std::tuple<Func, Args...>;
-        auto taskPack{new pack_type{
-            std::forward<Func>(func), std::forward<Args>(args)...}};
+        auto taskPack{new pack_type{std::forward<Func>(func),
+                                    std::forward<Args>(args)...}};
         struct ThreadFunc {
             static void *_run(void *arg) {
                 auto _taskPack = static_cast<pack_type *>(arg);
@@ -53,8 +52,8 @@ class thread {
                   std::is_class<Obj>::value>>
     thread(Func &&func, Obj *obj, Args &&...args) {
         using pack_type = std::tuple<Obj *, Func, Args...>;
-        auto taskPack{new pack_type{
-            obj, std::forward<Func>(func), std::forward<Args>(args)...}};
+        auto taskPack{new pack_type{obj, std::forward<Func>(func),
+                                    std::forward<Args>(args)...}};
         struct ThreadFunc {
             static void *_run(void *arg) {
                 auto _taskPack = static_cast<pack_type *>(arg);
@@ -78,6 +77,5 @@ class thread {
     pthread_t _ptid;
     bool _joinable;
 };
-};  // namespace yf
-
+}  // namespace yf
 #endif
