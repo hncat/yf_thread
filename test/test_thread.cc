@@ -34,7 +34,6 @@ void func(int a) {
       g_mutex.unlock();
     }
   }
-  std::shared_mutex;
 }
 
 void test01() {
