@@ -36,6 +36,8 @@ struct A {
 };
 
 void test02() {
+    yf::thread t1(A::func, 1);
+    t1.join();
     A a;
     yf::thread t2(&A::funcA, &a, 1);
     t2.join();
@@ -50,9 +52,9 @@ void test03() {
 int main() {
     std::cout << "main threadId: " << yf::thread::getThreadId() << '\n';
     // while (true) {
-    test01();
-    // test02();
-    // test03();
+    // test01();
+    test02();
+    test03();
     // }
     return 0;
 }

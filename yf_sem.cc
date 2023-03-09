@@ -1,6 +1,6 @@
-#include <semaphore.h>
-
 #include "yf_sem.h"
+
+#include <semaphore.h>
 
 namespace yf {
 sem::sem(int value, bool shared) { sem_init(&_sem, shared ? 1 : 0, value); }

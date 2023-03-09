@@ -4,6 +4,7 @@
 #include <pthread.h>
 
 #include <atomic>
+#include <type_traits>
 
 namespace yf {
 class mutex_basic {
@@ -21,6 +22,8 @@ class mutex_basic {
 };
 
 class mutex : private mutex_basic {
+    friend class conditional_variable;
+
    public:
     mutex();
     ~mutex();

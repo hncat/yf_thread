@@ -28,7 +28,9 @@ class thread {
     thread &operator=(const thread &) = delete;
     thread(thread &&) = delete;
     thread &operator=(thread &&) = delete;
-    template <typename Func, typename... Args>
+    template <
+        typename Func, typename... Args,
+        typename = decltype(std::declval<Func>()(std::declval<Args>()...))>
     thread(Func &&func, Args &&...args) : _ptid(0), _joinable(false) {
         using pack_type = std::tuple<Func, Args...>;
         auto taskPack{new pack_type{std::forward<Func>(func),

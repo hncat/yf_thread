@@ -17,6 +17,7 @@ class lock_gurd {
    public:
     lock_gurd(T& m) : _mutex(m) { _mutex.lock(); }
     ~lock_gurd() { _mutex.unlock(); }
+    mutex_reference get() { return _mutex; }
 
    private:
     T& _mutex;

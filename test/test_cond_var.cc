@@ -4,9 +4,9 @@
 #include <iostream>
 #include <vector>
 
+#include "yf_cond_var.h"
 #include "yf_lock.h"
 #include "yf_mutex.h"
-#include "yf_sem.h"
 #include "yf_thread.h"
 
 class Task {
@@ -25,29 +25,25 @@ class Task {
 std::vector<Task> tasks;
 static int count = 0;
 yf::mutex tmutex;
-yf::atomic_mutex tamutex;
-yf::sem tsem{0};
+yf::conditional_variable cond;
 
 void addTask(int num) {
     while (num > 0) {
-        yf::lock_gurd<yf::atomic_mutex> lock(tamutex);
-        tasks.emplace_back(++count);
-        tsem.post();
-        --num;
+        {
+            yf::lock_gurd<yf::mutex> lock(tmutex);
+            tasks.emplace_back(++count);
+            --num;
+        }
+        cond.notfiy_one();
     }
 }
 
 void consumeTask() {
     while (true) {
-        if (!tsem.wait()) {
-            continue;
-        }
         Task task;
         {
-            yf::lock_gurd<yf::atomic_mutex> lock(tamutex);
-            if (tasks.empty()) {
-                continue;
-            }
+            yf::lock_gurd<yf::mutex> lock(tmutex);
+            cond.wait_for(lock, []() { return tasks.empty(); });
             task = tasks.back();
             tasks.pop_back();
         }
