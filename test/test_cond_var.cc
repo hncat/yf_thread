@@ -30,7 +30,7 @@ yf::conditional_variable cond;
 void addTask(int num) {
     while (num > 0) {
         {
-            yf::lock_gurd<yf::mutex> lock(tmutex);
+            yf::lock_guard<yf::mutex> lock(tmutex);
             tasks.emplace_back(++count);
             --num;
         }
@@ -42,7 +42,7 @@ void consumeTask() {
     while (true) {
         Task task;
         {
-            yf::lock_gurd<yf::mutex> lock(tmutex);
+            yf::lock_guard<yf::mutex> lock(tmutex);
             cond.wait_for(lock, []() { return tasks.empty(); });
             task = tasks.back();
             tasks.pop_back();

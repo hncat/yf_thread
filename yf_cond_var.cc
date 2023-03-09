@@ -8,7 +8,7 @@ conditional_variable::conditional_variable()
 
 conditional_variable::~conditional_variable() { pthread_cond_destroy(&_cond); }
 
-void conditional_variable::wait(lock_gurd<mutex> &lock) {
+void conditional_variable::wait(lock_guard<mutex> &lock) {
     pthread_cond_wait(&_cond, &lock.get()._mutex);
 }
 

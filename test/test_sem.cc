@@ -30,7 +30,7 @@ yf::sem tsem{0};
 
 void addTask(int num) {
     while (num > 0) {
-        yf::lock_gurd<yf::atomic_mutex> lock(tamutex);
+        yf::lock_guard<yf::atomic_mutex> lock(tamutex);
         tasks.emplace_back(++count);
         tsem.post();
         --num;
@@ -44,7 +44,7 @@ void consumeTask() {
         }
         Task task;
         {
-            yf::lock_gurd<yf::atomic_mutex> lock(tamutex);
+            yf::lock_guard<yf::atomic_mutex> lock(tamutex);
             if (tasks.empty()) {
                 continue;
             }

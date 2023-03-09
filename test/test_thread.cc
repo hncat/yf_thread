@@ -12,8 +12,8 @@ yf::atomic_mutex g_amutex;
 void func(int a) {
     while (true) {
         sleep(1);
-        // yf::lock_gurd<yf::mutex> lock{g_mutex};
-        yf::lock_gurd<yf::atomic_mutex> alock{g_amutex};
+        // yf::lock_guard<yf::mutex> lock{g_mutex};
+        yf::lock_guard<yf::atomic_mutex> alock{g_amutex};
         std::cout << "threadId: " << yf::thread::getThreadId() << " a: " << a
                   << "begin\n";
         sleep(2);

@@ -12,11 +12,11 @@ class conditional_variable {
    public:
     conditional_variable();
     ~conditional_variable();
-    void wait(lock_gurd<mutex> &lock);
+    void wait(lock_guard<mutex> &lock);
     template <typename Func, typename... Args,
               typename = typename std::enable_if<
                   !is_result_void<Func, Args...>::value>::type>
-    void wait_for(lock_gurd<mutex> &lock, Func &&func, Args &&...args) {
+    void wait_for(lock_guard<mutex> &lock, Func &&func, Args &&...args) {
         while (func(std::forward<Args>(args)...)) {
             wait(lock);
         }
