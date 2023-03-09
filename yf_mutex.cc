@@ -11,6 +11,8 @@ void mutex::lock() { pthread_mutex_lock(&_mutex); }
 
 void mutex::unlock() { pthread_mutex_unlock(&_mutex); }
 
+bool mutex::trylock() { return pthread_mutex_trylock(&_mutex) == 0; }
+
 atomic_mutex::atomic_mutex() : _mutex{true} {}
 
 void atomic_mutex::lock() {

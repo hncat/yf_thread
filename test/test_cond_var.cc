@@ -7,6 +7,7 @@
 #include "yf_cond_var.h"
 #include "yf_lock.h"
 #include "yf_mutex.h"
+#include "yf_sem.h"
 #include "yf_thread.h"
 
 class Task {
@@ -24,8 +25,10 @@ class Task {
 
 std::vector<Task> tasks;
 static int count = 0;
+static int conusem = 0;
 yf::mutex tmutex;
 yf::conditional_variable cond;
+yf::sem sem{0};
 
 void addTask(int num) {
     while (num > 0) {
@@ -38,12 +41,17 @@ void addTask(int num) {
     }
 }
 
-void consumeTask() {
+void consumeTask(int num) {
     while (true) {
         Task task;
         {
             yf::lock_guard<yf::mutex> lock(tmutex);
-            cond.wait_for(lock, []() { return tasks.empty(); });
+            cond.wait_for(lock, [](int cnt) { return tasks.empty() && conusem < cnt; }, num);
+            ++conusem;
+            if (conusem > num) {
+                cond.notify_all();
+                break;
+            }
             task = tasks.back();
             tasks.pop_back();
         }
@@ -54,8 +62,8 @@ void consumeTask() {
 
 int main(int argc, char *argv[]) {
     yf::thread t(addTask, 20);
-    yf::thread t1(consumeTask);
-    yf::thread t2(consumeTask);
+    yf::thread t1(consumeTask, 20);
+    yf::thread t2(consumeTask, 20);
     t.join();
     t1.join();
     t2.join();

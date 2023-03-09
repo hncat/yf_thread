@@ -29,6 +29,7 @@ class mutex : private mutex_basic {
     ~mutex();
     void lock() override;
     void unlock() override;
+    bool trylock();
 
    private:
     pthread_mutex_t _mutex;
