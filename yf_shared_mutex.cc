@@ -28,7 +28,7 @@ void shared_mutex::unlock() {
   assert(ret == 0);
 }
 
-void shared_mutex::shared_lock() {
+void shared_mutex::lock_shared() {
   int ret;
   do
     ret = pthread_rwlock_rdlock(&_mutex);
@@ -37,7 +37,7 @@ void shared_mutex::shared_lock() {
     assert(false);
 }
 
-bool shared_mutex::try_shared_lock() {
+bool shared_mutex::try_lock_shared() {
   int ret = pthread_rwlock_tryrdlock(&_mutex) == 0;
   if (ret == EBUSY || ret == EAGAIN)
     return false;
@@ -45,5 +45,5 @@ bool shared_mutex::try_shared_lock() {
   return true;
 }
 
-void shared_mutex::shared_unlock() { unlock(); }
+void shared_mutex::unlock_shared() { unlock(); }
 } // namespace yf

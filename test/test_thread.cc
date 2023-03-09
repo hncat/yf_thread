@@ -6,10 +6,12 @@
 #include "yf_lock.h"
 #include "yf_mutex.h"
 #include "yf_thread.h"
+#include "yf_shared_mutex.h"
 
 yf::mutex g_mutex;
 yf::mutex g_mutex1;
 yf::atomic_mutex g_amutex;
+yf::shared_mutex g_smutex;
 
 void func(int a) {
   while (true) {
@@ -23,9 +25,11 @@ void func(int a) {
     // lock1 = std::move(lock2);
     // lock1.swap(lock2);
     if (!g_mutex.try_lock()) {
+      yf::shared_lock<yf::shared_mutex> slock{g_smutex};
       std::cout << "trylock false: " << yf::thread::getThreadId() << " a: " << a
                 << "\n";
     } else {
+      yf::shared_lock<yf::shared_mutex> slock{g_smutex};
       std::cout << "threadId: " << yf::thread::getThreadId() << " a: " << a
                 << "begin\n";
       sleep(2);

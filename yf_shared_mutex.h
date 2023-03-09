@@ -11,9 +11,9 @@ public:
   void lock();
   bool try_lock();
   void unlock();
-  void shared_lock();
-  bool try_shared_lock();
-  void shared_unlock();
+  void lock_shared();
+  bool try_lock_shared();
+  void unlock_shared();
   shared_mutex(const shared_mutex &) = delete;
   shared_mutex &operator=(const shared_mutex &) = delete;
 
