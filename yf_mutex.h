@@ -51,5 +51,17 @@ public:
 private:
   std::atomic<bool> _mutex;
 };
+
+class spin_lock : public mutex_basic {
+public:
+  explicit spin_lock(bool process_shared = false);
+  ~spin_lock();
+  void lock();
+  bool try_lock();
+  void unlock();
+
+private:
+  pthread_spinlock_t _spin;
+};
 } // namespace yf
 #endif

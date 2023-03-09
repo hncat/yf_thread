@@ -12,11 +12,13 @@ yf::mutex g_mutex;
 yf::mutex g_mutex1;
 yf::atomic_mutex g_amutex;
 yf::shared_mutex g_smutex;
+yf::spin_lock g_spin;
 
 void func(int a) {
   while (true) {
     sleep(1);
-    // yf::lock_guard<yf::mutex> lock{g_mutex};
+    yf::lock_guard<yf::mutex> lock{g_mutex};
+    // yf::lock_guard<yf::spin_lock> lock{g_spin};
     // yf::lock_guard<yf::atomic_mutex> alock{g_amutex};
     // yf::unique_lock<yf::atomic_mutex> alock{g_amutex};
     // yf::unique_lock<yf::mutex> lock{g_mutex};
@@ -24,19 +26,19 @@ void func(int a) {
     // yf::unique_lock<yf::mutex> lock2{g_mutex};
     // lock1 = std::move(lock2);
     // lock1.swap(lock2);
-    if (!g_mutex.try_lock()) {
-      yf::shared_lock<yf::shared_mutex> slock{g_smutex};
-      std::cout << "trylock false: " << yf::thread::getThreadId() << " a: " << a
-                << "\n";
-    } else {
-      yf::shared_lock<yf::shared_mutex> slock{g_smutex};
+    // if (!g_mutex.try_lock()) {
+    //   yf::shared_lock<yf::shared_mutex> slock{g_smutex};
+    //   std::cout << "trylock false: " << yf::thread::getThreadId() << " a: " << a
+    //             << "\n";
+    // } else {
+    //   yf::shared_lock<yf::shared_mutex> slock{g_smutex};
       std::cout << "threadId: " << yf::thread::getThreadId() << " a: " << a
                 << "begin\n";
       sleep(2);
       std::cout << "threadId: " << yf::thread::getThreadId() << " a: " << a
                 << "end\n";
-      g_mutex.unlock();
-    }
+      // g_mutex.unlock();
+    // }
   }
 }
 
