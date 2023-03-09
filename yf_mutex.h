@@ -7,43 +7,49 @@
 #include <type_traits>
 
 namespace yf {
-class mutex_basic {
-   protected:
-    mutex_basic() = default;
-    virtual ~mutex_basic() = default;
+// mutex已加锁不加锁策略
+struct adopt_lock_t { explicit adopt_lock_t() = default; };
+// mutex未加锁不加锁策略
+struct defer_lock_t { explicit defer_lock_t() = default; };
+// 使用try_lock策略
+struct try_lock_t { explicit try_lock_t() = default; };
 
-   public:
-    mutex_basic(const mutex_basic &) = delete;
-    mutex_basic &operator=(const mutex_basic &) = delete;
-    mutex_basic(mutex_basic &&) = delete;
-    mutex_basic &operator=(mutex_basic &&) = delete;
-    virtual void lock() = 0;
-    virtual void unlock() = 0;
+class mutex_basic {
+protected:
+  mutex_basic() = default;
+  ~mutex_basic() = default;
+
+public:
+  mutex_basic(const mutex_basic &) = delete;
+  mutex_basic &operator=(const mutex_basic &) = delete;
+  mutex_basic(mutex_basic &&) = delete;
+  mutex_basic &operator=(mutex_basic &&) = delete;
 };
 
 class mutex : private mutex_basic {
-    friend class conditional_variable;
+  friend class conditional_variable;
 
-   public:
-    mutex();
-    ~mutex();
-    void lock() override;
-    void unlock() override;
-    bool trylock();
+public:
+  mutex();
+  ~mutex();
+  void lock();
+  bool try_lock();
+  void unlock();
 
-   private:
-    pthread_mutex_t _mutex;
+private:
+  pthread_mutex_t _mutex;
 };
 
 class atomic_mutex : public mutex_basic {
-   public:
-    atomic_mutex();
-    ~atomic_mutex() = default;
-    void lock() override;
-    void unlock() override;
+public:
+  atomic_mutex();
+  ~atomic_mutex() = default;
+  void lock();
+  bool try_lock();
+  void unlock();
 
-   private:
-    std::atomic<bool> _mutex;
+private:
+  std::atomic<bool> _mutex;
 };
-}  // namespace yf
+} // namespace yf
 #endif

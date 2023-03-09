@@ -4,11 +4,10 @@
 #include <type_traits>
 
 namespace yf {
-template <typename Func, typename... Args>
-struct is_result_void {
-    constexpr static bool value = std::is_void<decltype(std::declval<Func>()(
-        std::declval<Args>()...))>::value;
+template <typename Func, typename... Args> struct is_result_void {
+  constexpr static bool value = std::is_void<decltype(std::declval<Func>()(
+      std::declval<Args>()...))>::value;
 };
-}  // namespace yf
+} // namespace yf
 
 #endif

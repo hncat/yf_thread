@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.5)
 project(yf_thread)
 
-list(APPEND _sources yf_thread.cc yf_mutex.cc yf_sem.cc yf_cond_var.cc)
+list(APPEND _sources yf_thread.cc yf_mutex.cc yf_sem.cc yf_cond_var.cc yf_shared_mutex.cc)
 message(STATUS "_sources: ${_sources}")
 
 # 设置c++标准
