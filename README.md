@@ -1,8 +1,8 @@
 #  yf_thread
 linux系统环境下，使用c++14标准对POSIX提供的线程接口进行封装
 ## 线程创建
+实现的核心技术使用tuple实现类型擦除，从而实现类似标准库提供的thread接口
 ```cpp
-// 实现的核心技术使用tuple实现类型擦除，从而实现类型标准库提供的thread接口
 #include <iostream>
 #include "yf_thread.h"
 
