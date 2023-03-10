@@ -10,17 +10,17 @@
 
 yf::mutex g_mutex;
 yf::mutex g_mutex1;
-yf::atomic_mutex g_amutex;
+yf::atomic_lock g_amutex;
 yf::shared_mutex g_smutex;
 yf::spin_lock g_spin;
 
 void func(int a) {
   while (true) {
     sleep(1);
-    yf::lock_guard<yf::mutex> lock{g_mutex};
+    // yf::lock_guard<yf::mutex> lock{g_mutex};
     // yf::lock_guard<yf::spin_lock> lock{g_spin};
-    // yf::lock_guard<yf::atomic_mutex> alock{g_amutex};
-    // yf::unique_lock<yf::atomic_mutex> alock{g_amutex};
+    yf::lock_guard<yf::atomic_lock> alock{g_amutex};
+    // yf::unique_lock<yf::atomic_lock> alock{g_amutex};
     // yf::unique_lock<yf::mutex> lock{g_mutex};
     // yf::unique_lock<yf::mutex> lock1{g_mutex1};
     // yf::unique_lock<yf::mutex> lock2{g_mutex};
@@ -51,6 +51,7 @@ void test01() {
 
 struct A {
 public:
+  void operator()(int a) { std::cout << a << "A::operator()\n"; }
   void funcA(int a) { std::cout << a << "funcA()\n"; }
   static void func(int a) { std::cout << a << "A::func()\n"; }
 };
@@ -63,6 +64,8 @@ void test02() {
   yf::thread t2(&A::funcA, &a, b);
   std::cout << "b:" << b << '\n';
   t2.join();
+  yf::thread t3(A{}, 1);
+  t3.join();
 }
 
 void test03() {

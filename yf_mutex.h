@@ -40,10 +40,10 @@ private:
   pthread_mutex_t _mutex;
 };
 
-class atomic_mutex : public mutex_basic {
+class atomic_lock : public mutex_basic {
 public:
-  atomic_mutex();
-  ~atomic_mutex() = default;
+  atomic_lock();
+  ~atomic_lock() = default;
   void lock();
   bool try_lock();
   void unlock();

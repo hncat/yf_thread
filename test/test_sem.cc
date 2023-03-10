@@ -25,12 +25,12 @@ private:
 std::vector<Task> tasks;
 static int count = 0;
 yf::mutex tmutex;
-yf::atomic_mutex tamutex;
+yf::atomic_lock tamutex;
 yf::sem tsem{0};
 
 void addTask(int num) {
   while (num > 0) {
-    yf::lock_guard<yf::atomic_mutex> lock(tamutex);
+    yf::lock_guard<yf::atomic_lock> lock(tamutex);
     tasks.emplace_back(++count);
     tsem.post();
     --num;
@@ -44,7 +44,7 @@ void consumeTask() {
     }
     Task task;
     {
-      yf::lock_guard<yf::atomic_mutex> lock(tamutex);
+      yf::lock_guard<yf::atomic_lock> lock(tamutex);
       if (tasks.empty()) {
         continue;
       }

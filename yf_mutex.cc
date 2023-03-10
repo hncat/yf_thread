@@ -17,21 +17,21 @@ bool mutex::try_lock() { return pthread_mutex_trylock(&_mutex); }
 
 void mutex::unlock() { pthread_mutex_unlock(&_mutex); }
 
-atomic_mutex::atomic_mutex() : _mutex{true} {}
+atomic_lock::atomic_lock() : _mutex{true} {}
 
-void atomic_mutex::lock() {
+void atomic_lock::lock() {
   bool islock = true;
   while (!_mutex.compare_exchange_weak(islock, false)) {
     islock = true;
   }
 }
 
-bool atomic_mutex::try_lock() {
+bool atomic_lock::try_lock() {
   bool islock = true;
   return _mutex.compare_exchange_weak(islock, false);
 }
 
-void atomic_mutex::unlock() { _mutex.store(true); }
+void atomic_lock::unlock() { _mutex.store(true); }
 
 spin_lock::spin_lock(bool process_shared) {
   int err;
