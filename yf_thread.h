@@ -49,7 +49,7 @@ public:
   template <typename Func, typename Obj, typename... Args,
             typename = std::enable_if_t<
                 std::is_member_function_pointer<std::decay_t<Func>>::value &&
-                std::is_class<Obj>::value>>
+                std::is_class<std::decay_t<Obj>>::value>>
   thread(Func &&func, Obj *obj, Args &&...args) {
     using pack_type = std::tuple<Obj *, Func, Args...>;
     auto taskPack{new pack_type{obj, std::forward<Func>(func),
